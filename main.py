@@ -25,7 +25,7 @@ s_loss_limit: float = stock_price
 balance: int = 0
 pnl: int = 0
 
-num_flips: int = 10000
+num_flips: int = 1000
 
 b_bought_price: int = 0
 s_bought_price: int = 0
@@ -39,7 +39,7 @@ s_record = []
 
 # High standard deviations indicate high volatility in stocks
 # Volatility value (1 means always the same as previous, 0 means completely random)
-volatility = 0.8
+volatility = 0.3
 
 # TJ threshold
 threshold = 3
@@ -76,6 +76,8 @@ def lerp(a, b, t):
 flip(volatility, prev)
 past.append(coin)
 for i in range(num_flips):
+    # stock_move_amt = random.uniform(0, 5)
+    stock_move_amt = random.uniform(0, 5) ** 2 / 5
     if stock_price <= 0:
         print("Stock price invalid")
         break
@@ -85,9 +87,9 @@ for i in range(num_flips):
 
     # Move stock price up or down based on coin flip
     if coin:
-        stock_price += 1
+        stock_price += stock_move_amt
     else:
-        stock_price -= 1
+        stock_price -= stock_move_amt
 
     # Get whether the stock has increased over 2 iterations
     if all_items_same(list(past)):
@@ -96,27 +98,27 @@ for i in range(num_flips):
         same = False
 
     # Make the decision to buy or short the stock
-    # if same:
-    #     if coin and not buying:
-    #         buy = True
-    #         buying = True
-    #
-    #     if not coin and not shorting:
-    #         short = True
-    #         shorting = True
+    if same:
+        if coin and not buying:
+            buy = True
+            buying = True
 
-    # TJ's strategy
-    if not buying and stock_price == original_price - threshold:
-        b_bought_price = stock_price
-        buy = True
-        buying = True
-    if not shorting and stock_price == original_price + threshold:
-        s_bought_price = stock_price
-        short = True
-        shorting = True
+        if not coin and not shorting:
+            short = True
+            shorting = True
+
+    # # TJ's strategy
+    # if not buying and stock_price == original_price - threshold:
+    #     b_bought_price = stock_price
+    #     buy = True
+    #     buying = True
+    # if not shorting and stock_price == original_price + threshold:
+    #     s_bought_price = stock_price
+    #     short = True
+    #     shorting = True
 
     # Option to only buy or short at one time
-    # if same_twice:
+    # if same:
     #     if coin and not buying and not shorting:
     #         buy = True
     #         buying = True
@@ -131,34 +133,39 @@ for i in range(num_flips):
     #     buy_back = True
 
     # Sell strategy 2: Sell when stock goes back to sell fraction
-    # if buying:
-    #     if buy:
-    #         b_bought_price = stock_price
-    #         # Log lower bound
-    #         b_loss_limit = stock_price - 1
-    #     # Update loss limit
-    #     if same:
-    #         b_loss_limit = lerp(b_loss_limit, stock_price, sell_fraction)
-    #
-    #     if stock_price <= b_loss_limit or i == num_flips - 1:
-    #         sell = True
-    #
-    # if shorting:
-    #     if short:
-    #         s_bought_price = stock_price
-    #         # Log lower bound
-    #         s_loss_limit = stock_price + 1
-    #     # Update loss limit
-    #     if same:
-    #         s_loss_limit = lerp(s_loss_limit, stock_price, sell_fraction)
-    #     if stock_price >= s_loss_limit or i == num_flips - 1:
-    #         buy_back = True
+    if buying:
+        if buy:
+            b_bought_price = stock_price
+            # Log lower bound
+            b_loss_limit = stock_price - stock_move_amt
+        # Update loss limit
+        if same:
+            b_loss_limit = lerp(b_loss_limit, stock_price, sell_fraction)
+
+        if stock_price <= b_loss_limit or i == num_flips - stock_move_amt:
+            sell = True
+
+    if shorting:
+        if short:
+            s_bought_price = stock_price
+            # Log lower bound
+            s_loss_limit = stock_price + stock_move_amt
+        # Update loss limit
+        if same:
+            s_loss_limit = lerp(s_loss_limit, stock_price, sell_fraction)
+        if stock_price >= s_loss_limit or i == num_flips - stock_move_amt:
+            buy_back = True
 
     # TJ's strategy
-    if (buying and not buy and stock_price == original_price) or (buying and num_flips - 1 == i):
-        sell = True
-    if (shorting and not short and stock_price == original_price) or (shorting and num_flips - 1 == i):
-        buy_back = True
+    # if (buying and not buy and stock_price == original_price) or (buying and num_flips - stock_move_amt == i):
+    #     sell = True
+    # if (shorting and not short and stock_price == original_price) or (shorting and num_flips - stock_move_amt == i):
+    #     buy_back = True
+    #
+
+
+
+
 
     # Perform the buy or sell action
     if buy:
@@ -211,7 +218,7 @@ print(pnl)
 
 # Plot the bal history
 
-plt.figure()
+plt.figure(figsize=(16, 8))
 plt.plot(stock_price_history, label='Stock Price History')
 plt.plot(bal_history, label='PnL History')
 # plt.plot(b_loss_lim_his, label='Buy loss limit history')

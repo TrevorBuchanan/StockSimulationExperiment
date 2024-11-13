@@ -4,6 +4,7 @@ from utility import end_decreasing_for_length, end_increasing_for_length, lerp
 
 class Engine:
     def __init__(self, current_price):
+        self.loss_limit_percent = 0.01
         self.is_buying = False
         self.is_shorting = False
         self.sell_fraction = 1 / 4
@@ -19,15 +20,23 @@ class Engine:
     def run(self, price_series):
         if len(price_series) < 3:
             return
+        if self.loss_limit_percent < 0 or self.loss_limit_percent > 100:
+            raise Exception("Loss limit percent out of range 0-100")
         current_price = price_series[-1]
+        self.max_loss_limit = self.loss_limit_percent * current_price
+        self._update_limits(current_price)
         self._buy(price_series, current_price)
         self._sell(current_price)
         self._short(price_series, current_price)
         self._buy_back(current_price)
 
-    def _buy(self, price_series, current_price):
+    def _update_limits(self, current_price):
         if self.is_buying:
             self.buy_loss_limit = lerp(self.buy_loss_limit, current_price, self.sell_fraction)
+        if self.is_shorting:
+            self.short_loss_limit = lerp(self.short_loss_limit, current_price, self.sell_fraction)
+
+    def _buy(self, price_series, current_price):
         if self._should_buy(price_series):
             self.is_buying = True
             self.b_bought_price = current_price
@@ -40,8 +49,6 @@ class Engine:
             self.sold = True
 
     def _short(self, price_series, current_price):
-        if self.is_shorting:
-            self.short_loss_limit = lerp(self.short_loss_limit, current_price, self.sell_fraction)
         if self._should_short(price_series):
             self.is_shorting = True
             self.s_bought_price = current_price

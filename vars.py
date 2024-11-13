@@ -12,7 +12,7 @@ class Vars:
             self.TIME_STEPS = 100
 
             # Autocorrelation value (1 means always the same as previous, 0 means completely random)
-            self.AUTOCORRELATION = 0.1
+            self.AUTOCORRELATION = 0.3
 
             self.initialized = True
 

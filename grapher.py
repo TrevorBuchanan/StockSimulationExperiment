@@ -1,11 +1,26 @@
 import math
-
 from matplotlib import pyplot as plt
+import matplotlib as mpl
 
 
 class Grapher:
     @staticmethod
     def graph(stock_price_history, bal_history, b_loss_lim_his, b_record, s_loss_lim_his, s_record):
+        # Set dark mode
+        plt.style.use('dark_background')
+        mpl.rcParams.update({
+            'axes.facecolor': 'black',
+            'axes.edgecolor': 'white',
+            'axes.labelcolor': 'white',
+            'figure.facecolor': 'black',
+            'xtick.color': 'white',
+            'ytick.color': 'white',
+            'grid.color': 'gray',
+            'text.color': 'white',
+            'legend.facecolor': 'gray',
+            'legend.edgecolor': 'white'
+        })
+
         plt.figure(figsize=(16, 8))
 
         # Subplot 1: Stock Price History
@@ -49,15 +64,33 @@ class Grapher:
     def graph_util(series_list: list, labels: list) -> None:
         if len(series_list) != len(labels):
             raise Exception("Must provide same number of series as labels")
+
+        # Set dark mode
+        plt.style.use('dark_background')
+        mpl.rcParams.update({
+            'axes.facecolor': 'black',
+            'axes.edgecolor': 'white',
+            'axes.labelcolor': 'white',
+            'figure.facecolor': 'black',
+            'xtick.color': 'white',
+            'ytick.color': 'white',
+            'grid.color': 'gray',
+            'text.color': 'white',
+            'legend.facecolor': 'gray',
+            'legend.edgecolor': 'white'
+        })
+
         num_series = len(series_list)
         plt.figure(figsize=(16, 8))
         num_rows = math.floor(math.sqrt(num_series))
         num_columns = math.ceil(math.sqrt(num_series))
+
         for i, series in enumerate(series_list):
             plt.subplot(num_rows, num_columns, i + 1)
-            plt.plot(series, label=labels[i])
+            plt.plot(series, label=labels[i], color='cyan')  # Default color for consistency
             if len(labels) - 1 >= i:
                 plt.title(labels[i])
-            plt.axis('off')
+            plt.axis('off')  # Optional: remove axis for a cleaner look in `graph_util`
+
         plt.tight_layout()
         plt.show()

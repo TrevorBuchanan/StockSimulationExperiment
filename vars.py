@@ -9,11 +9,10 @@ class Vars:
     def __init__(self):
         if not hasattr(self, 'initialized'):
             self.CURRENT_STEP = 1
-            self.TIME_STEPS = 50
+            self.TIME_STEPS = 100
 
-            # High standard deviations indicate high volatility in stocks
-            # Volatility value (1 means always the same as previous, 0 means completely random)
-            self.VOLATILITY = 0.5
+            # Autocorrelation value (1 means always the same as previous, 0 means completely random)
+            self.AUTOCORRELATION = 0.1
 
             self.initialized = True
 

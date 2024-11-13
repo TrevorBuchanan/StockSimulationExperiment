@@ -12,10 +12,10 @@ def main():
     stock = Stock(100)
     engine = Engine(stock.current_price)
     coin = Coin()
-    coin.flip(volatility_amt=variables.VOLATILITY)
+    coin.flip(volatility_amt=variables.AUTOCORRELATION)
     series_manager = SeriesManager()
+    series_manager.add_price(stock.current_price)
     series_manager.add_step(engine.balance,
-                            stock.current_price,
                             engine.buy_loss_limit,
                             engine.short_loss_limit,
                             engine.is_buying,
@@ -24,13 +24,13 @@ def main():
     # Perform market sim
     while variables.CURRENT_STEP <= variables.TIME_STEPS:
         if stock.current_price <= 0:
-            print("Stock price invalid")
+            print("Stock price has bottomed -> Company went bankrupt")
             break
-        coin.flip(volatility_amt=variables.VOLATILITY)
+        coin.flip(volatility_amt=variables.AUTOCORRELATION)
         stock.price_change(coin.current)
+        series_manager.add_price(stock.current_price)
         engine.run(series_manager.stock_price_history)
         series_manager.add_step(engine.balance,
-                                stock.current_price,
                                 engine.get_bl_limit(),
                                 engine.get_sl_limit(),
                                 engine.is_buying,
@@ -40,7 +40,7 @@ def main():
         variables.CURRENT_STEP += 1
 
     # Plot the bal history
-    print(series_manager.bal_history)
+    print(series_manager)
     grapher = Grapher()
     grapher.graph(series_manager.stock_price_history,
                   series_manager.bal_history,

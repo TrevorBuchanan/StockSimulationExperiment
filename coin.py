@@ -7,12 +7,12 @@ class Coin:
         self.current = None
         self.history = deque(maxlen=2)
 
-    def flip(self, volatility_amt):
+    def flip(self, autocorrelation):
         if len(self.history) > 0:
             prev_flip = self.history[-1]
         else:
             prev_flip = None
-        temp = 1 - volatility_amt
+        temp = 1 - autocorrelation
         if prev_flip is not None:
             if random.random() < (1 - temp):
                 coin = prev_flip

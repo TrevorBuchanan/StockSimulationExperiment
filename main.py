@@ -12,7 +12,7 @@ def main():
     stock = Stock(100)
     engine = Engine(stock.current_price)
     coin = Coin()
-    coin.flip(volatility_amt=variables.AUTOCORRELATION)
+    coin.flip(autocorrelation=variables.AUTOCORRELATION)
     series_manager = SeriesManager()
     series_manager.add_price(stock.current_price)
     series_manager.add_step(engine.balance,
@@ -26,7 +26,7 @@ def main():
         if stock.current_price <= 0:
             print("Stock price has bottomed -> Company went bankrupt")
             break
-        coin.flip(volatility_amt=variables.AUTOCORRELATION)
+        coin.flip(autocorrelation=variables.AUTOCORRELATION)
         stock.price_change(coin.current)
         series_manager.add_price(stock.current_price)
         engine.run(series_manager.stock_price_history)
